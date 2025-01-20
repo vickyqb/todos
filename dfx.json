@@ -1,0 +1,17 @@
+{
+  "canisters": {
+    "todos_backend": {
+      "candid": "src/todos_backend/todos_backend.did",
+      "package": "todos_backend",
+      "type": "rust"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
