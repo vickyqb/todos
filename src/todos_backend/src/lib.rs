@@ -1,4 +1,4 @@
-use ic_cdk::{export_candid,query,update};
+use ic_cdk::{export_candid,query,update,storage};
 use std::cell::RefCell;
 use candid::{CandidType, Deserialize};
 
@@ -26,6 +26,7 @@ fn create_todos(subject: String, description: String) -> u64{
             description,
             done: false,
         });
+        storage::stable_save((todos.clone(),)).expect("Could not save todos");
         todo_id 
     });
     todo_id 
@@ -34,7 +35,8 @@ fn create_todos(subject: String, description: String) -> u64{
 #[query]
 fn get_todos() -> Vec<Todo> {
     TODOS.with(|todos| {
-        todos.borrow().clone()
+        // todos.borrow().clone()
+        storage::stable_restore::<(Vec<Todo>,)>().unwrap_or_else(|_| (Vec::new(),)).0
     })
 }
 
@@ -45,15 +47,19 @@ fn mark_done(todo_id: u64) {
         if let Some(todo) = todos.iter_mut().find(|todo| todo.todo_id == todo_id) {
             todo.done = true;
         }
+        storage::stable_save((todos.clone(),)).expect("Could not save todos");
     });
 }
 
 #[update]
-fn remove_todo_by_id(todo_id: u64) {
+fn remove_todo_by_id(todo_id: u64)-> String {
+    let todos = storage::stable_restore::<(Vec<Todo>,)>().unwrap_or_else(|_| (Vec::new(),));
     TODOS.with(|todos| {
         let mut todos = todos.borrow_mut();
         todos.retain(|todo| todo.todo_id != todo_id);
+        storage::stable_save((todos.clone(),)).expect("Could not save todos");
     });
+    return "Todo removed".to_string();
 }
 
 

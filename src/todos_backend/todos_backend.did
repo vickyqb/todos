@@ -8,5 +8,5 @@ service : {
   create_todos : (text, text) -> (nat64);
   get_todos : () -> (vec Todo) query;
   mark_done : (nat64) -> ();
-  remove_todo_by_id : (nat64) -> ();
+  remove_todo_by_id : (nat64) -> (text);
 }
